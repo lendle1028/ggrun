@@ -1,0 +1,7 @@
+{
+  "name": "@lendle1028/ggscripts",
+  "version": "1.0.0",
+  "bin": {
+    "ggscripts": "init.js"
+  }
+}
