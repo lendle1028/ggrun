@@ -42,9 +42,9 @@ if (!existsSync(miseBin)) {
 let args=process.argv.slice(2);
 
 const ggToml = `[aliases]
-mise = "gh/jdx/mise"
-node = "gh/jdx/mise exec node@latest -- node"
-uv   = "gh/jdx/mise exec uv@latest -- uv"
+mise = "gh/jdx/mise@2026.10.17"
+node = "gh/jdx/mise@2026.10.17 exec node@latest -- node"
+uv   = "gh/jdx/mise@2026.10.17 exec uv@latest -- uv"
 `;
 
 if(!existsSync('gg.toml')) {
