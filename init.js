@@ -56,7 +56,7 @@ execSync(`"${ggCmd}" mise trust`, {
   stdio: 'inherit'
 });
 
-execSync(`"${ggCmd}" mise run `+args.join(' '), {
+execSync(`"${ggCmd}" mise run `, ...args, {
   stdio: 'inherit'
 });
 
