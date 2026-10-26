@@ -1,45 +1,89 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const { execFileSync, execSync } = require('child_process');
-const { existsSync, readdirSync, symlinkSync, chmodSync } = require('fs');
-const { homedir, platform } = require('os');
+const {
+    execFileSync,
+    execSync
+} = require('child_process');
+const {
+    existsSync,
+    readdirSync,
+    symlinkSync,
+    chmodSync
+} = require('fs');
+const {
+    homedir,
+    platform
+} = require('os');
 const path = require('path');
 
 // ── 1. 確保 mise binary 可用 ─────────────────────────────────
 
 const isWin = platform() === 'win32';
 const cacheDir = path.join(homedir(), '.cache', 'gg', 'mise', 'mise_star_');
-const miseBin  = path.join(cacheDir, isWin ? 'mise.exe' : 'mise');
-const ggCmd    = path.join(process.cwd(), isWin ? 'gg.cmd' : './gg.cmd');
+const miseBin = path.join(cacheDir, isWin ? 'mise.exe' : 'mise');
+const ggCmd = path.join(process.cwd(), isWin ? 'gg.cmd' : './gg.cmd');
 
-function findMiseBinary() {
-  if (!existsSync(cacheDir)) return null;
-  return readdirSync(cacheDir).find(f => f.startsWith('mise-v'));
+const localCacheDir = path.join(".", '.cache', 'gg', 'mise', 'mise_star_');
+const localMiseBin = path.join(cacheDir, isWin ? 'mise.exe' : 'mise');
+
+let LOCAL_MODE=false;
+
+function findMiseBinary(local = false) {
+    if (!local) {
+        if (!existsSync(cacheDir)) return null;
+        return readdirSync(cacheDir).find(f => f.startsWith('mise-v'));
+    }else{
+		if (!existsSync(localCacheDir)) return null;
+        return readdirSync(localCacheDir).find(f => f.startsWith('mise-v'));
+	}
+}
+
+function installMise(local=false){
+	console.error('[setup] Downloading mise via gg...local='+local);
+    try {
+		if(!local){
+			console.log(`"${ggCmd}" gh/jdx/mise@2026.10.17 --version`);
+			execSync(`"${ggCmd}" gh/jdx/mise@2026.10.17 --version`, {
+				stdio: 'inherit'
+			});
+		}else{
+			console.log(`"${ggCmd}" -l gh/jdx/mise@2026.10.17 --version`);
+			execSync(`"${ggCmd}" -l gh/jdx/mise@2026.10.17 --version`, {
+				stdio: 'inherit'
+			});
+		}
+		//validate
+		return findMiseBinary(local);
+    } catch (_) {
+        // 下載過程 gg 可能 fallback 失敗，只要檔案存在就好
+    }
 }
 
 if (!findMiseBinary()) {
-  console.error('[setup] Downloading mise via gg...');
-  try {
-    execSync(`"${ggCmd}" gh/jdx/mise --version`, { stdio: 'ignore' });
-  } catch (_) {
-    // 下載過程 gg 可能 fallback 失敗，只要檔案存在就好
-  }
+   if(!installMise()){
+	   if(!installMise(true)){
+		   console.error('[error] Failed installing mise via gg, exit...');
+		   process.exit(1);
+	   }
+   }
 }
 
-if (!existsSync(miseBin)) {
-  const bin = findMiseBinary();
-  if (!bin) {
-    console.error('[setup] Failed to download mise binary.');
-    process.exit(1);
-  }
-  const fullBinPath = path.join(cacheDir, bin);
-  symlinkSync(fullBinPath, miseBin);
-  if (!isWin) chmodSync(miseBin, 0o755);
-  console.error(`[setup] Symlink created: ${miseBin} -> ${fullBinPath}`);
-}
+/*if (!existsSync(miseBin)) {
+    const bin = findMiseBinary();
+    if (!bin) {
+		//fallback to local way
+		
+        console.error('[setup] Failed to download mise binary.');
+        process.exit(1);
+    }
+    const fullBinPath = path.join(cacheDir, bin);
+    symlinkSync(fullBinPath, miseBin);
+    if (!isWin) chmodSync(miseBin, 0o755);
+    console.error(`[setup] Symlink created: ${miseBin} -> ${fullBinPath}`);
+}*/
 
-let args=process.argv.slice(2);
+let args = process.argv.slice(2);
 
 const ggToml = `[aliases]
 mise = "gh/jdx/mise@2026.10.17"
@@ -47,17 +91,17 @@ node = "gh/jdx/mise@2026.10.17 exec node@latest -- node"
 uv   = "gh/jdx/mise@2026.10.17 exec uv@latest -- uv"
 `;
 
-if(!existsSync('gg.toml')) {
-  fs.writeFileSync('gg.toml', ggToml);
-  console.log('gg.toml created');
+if (!existsSync('gg.toml')) {
+    fs.writeFileSync('gg.toml', ggToml);
+    console.log('gg.toml created');
 }
 
 execSync(`"${ggCmd}" mise trust`, {
-  stdio: 'inherit'
+    stdio: 'inherit'
 });
 
 execSync(`"${ggCmd}" mise run `, ...args, {
-  stdio: 'inherit'
+    stdio: 'inherit'
 });
 
 // ── 2. 安裝程序 ──────────────────────────────────────────────
