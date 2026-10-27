@@ -20,7 +20,9 @@ const path = require('path');
 // ── 1. 確保 mise binary 可用 ─────────────────────────────────
 
 const isWin = platform() === 'win32';
-const cacheDir = path.join(homedir(), '.cache', 'gg', 'mise', 'mise_star_');
+const cacheDir = (!process.env.GG_CACHE_DIR)?
+	path.join(homedir(), '.cache', 'gg', 'mise', 'mise_star_'):
+	path.join(process.env.GG_CACHE_DIR, 'mise', 'mise_star_');
 const miseBin = path.join(cacheDir, isWin ? 'mise.exe' : 'mise');
 const ggCmd = path.join(process.cwd(), isWin ? 'gg.cmd' : './gg.cmd');
 
@@ -34,27 +36,30 @@ function findMiseBinary(local = false) {
         if (!existsSync(cacheDir)) return null;
         return readdirSync(cacheDir).find(f => f.startsWith('mise-v'));
     }else{
-		if (!existsSync(localCacheDir)) return null;
+if (!existsSync(localCacheDir)) return null;
         return readdirSync(localCacheDir).find(f => f.startsWith('mise-v'));
-	}
+}
 }
 
 function installMise(local=false){
-	console.error('[setup] Downloading mise via gg...local='+local);
+console.error('[setup] Downloading mise via gg...local='+local);
+if(!local){
+return false;
+}
     try {
-		if(!local){
-			console.log(`"${ggCmd}" gh/jdx/mise@2026.10.17 --version`);
-			execSync(`"${ggCmd}" gh/jdx/mise@2026.10.17 --version`, {
-				stdio: 'inherit'
-			});
-		}else{
-			console.log(`"${ggCmd}" -l gh/jdx/mise@2026.10.17 --version`);
-			execSync(`"${ggCmd}" -l gh/jdx/mise@2026.10.17 --version`, {
-				stdio: 'inherit'
-			});
-		}
-		//validate
-		return findMiseBinary(local);
+if(!local){
+console.log(`"${ggCmd}" gh/jdx/mise@2026.10.17 --version`);
+execSync(`"${ggCmd}" gh/jdx/mise@2026.10.17 --version`, {
+stdio: 'inherit'
+});
+}else{
+console.log(`"${ggCmd}" -l gh/jdx/mise@2026.10.17 --version`);
+execSync(`"${ggCmd}" -l gh/jdx/mise@2026.10.17 --version`, {
+stdio: 'inherit'
+});
+}
+//validate
+return findMiseBinary(local);
     } catch (_) {
         // 下載過程 gg 可能 fallback 失敗，只要檔案存在就好
     }
@@ -62,18 +67,18 @@ function installMise(local=false){
 
 if (!findMiseBinary()) {
    if(!installMise()){
-	   if(!installMise(true)){
-		   console.error('[error] Failed installing mise via gg, exit...');
-		   process.exit(1);
-	   }
+  if(!installMise(true)){
+  console.error('[error] Failed installing mise via gg, exit...');
+  process.exit(1);
+  }
    }
 }
 
 /*if (!existsSync(miseBin)) {
     const bin = findMiseBinary();
     if (!bin) {
-		//fallback to local way
-		
+//fallback to local way
+
         console.error('[setup] Failed to download mise binary.');
         process.exit(1);
     }
