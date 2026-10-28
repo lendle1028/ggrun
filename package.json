@@ -1,7 +1,9 @@
 {
-  "name": "@lendle1028/ggscripts",
+  "name": "@lendle/ggrun",
   "version": "1.0.0",
+  "description": "a cross-platform launch script and framework",
   "bin": {
-    "ggscripts": "init.js"
-  }
+    "ggrun": "./init.js"
+  },
+  "license": "MIT"
 }
