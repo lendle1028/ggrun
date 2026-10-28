@@ -27,6 +27,8 @@ async function main() {
   // ── 1. 確保 mise binary 可用 ─────────────────────────────────
 
   const isWin = platform() === 'win32';
+  const isMac=platform()==="darwin";
+  
   const cacheDir = (!process.env.GG_CACHE_DIR) ?
     path.join(homedir(), '.cache', 'gg', 'mise', 'mise_star_') :
     path.join(process.env.GG_CACHE_DIR, 'mise', 'mise_star_');
