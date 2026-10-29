@@ -1,6 +1,6 @@
 {
   "name": "@lendle/ggrun",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "a cross-platform launch script and framework",
   "bin": {
     "ggrun": "./init.js"

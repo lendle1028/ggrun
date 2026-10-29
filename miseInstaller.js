@@ -45,21 +45,42 @@ async function downloadAndExtract(url, dest) {
   fs.unlinkSync(zipPath);
 }
 
-async function downloadAndInstallMise(){
-    const isWin = platform() === 'win32';
-    const cacheDir = (!process.env.GG_CACHE_DIR) ?
-      path.join(homedir(), '.cache', 'gg', 'mise', 'mise_eq_2026.10.17') :
-      path.join(process.env.GG_CACHE_DIR, 'mise', 'mise_eq_2026.10.17');
-    fs.mkdirSync(cacheDir, { recursive: true });
+async function downloadAndInstallMise() {
+  const isWin = platform() === 'win32';
+  const isMac = platform() === "darwin";
+  const cacheDir = (!process.env.GG_CACHE_DIR) ?
+    path.join(homedir(), '.cache', 'gg', 'mise', 'mise_eq_2026.10.17') :
+    path.join(process.env.GG_CACHE_DIR, 'mise', 'mise_eq_2026.10.17');
+  fs.mkdirSync(cacheDir, { recursive: true });
+  let ggMeta = null;
+  if (isWin) {
     await downloadAndExtract(
-        "https://imsofa.rocks/projects/ggrun/mise/win/mise.zip",
-        cacheDir
+      "https://filedn.com/lxM7sE9lDGdk3N87yTgsfWY/lendle/products/ggrun/win/mise.zip",
+      cacheDir
     );
-    //create config files
-    const ggMeta = `
+    ggMeta = `
       {"version_req":"=2026.10.17","download":{"version":"2026.10.17","tags":[],"download_url":"https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-windows-x64.exe","arch":"X86_64","os":"Windows","variant":"Any"},"cmd":{"cmd":"gh/jdx/mise","version":"=2026.10.17","distribution":null,"include_tags":[],"exclude_tags":[],"gems":null}}
       `;
-    fs.writeFileSync(path.join(cacheDir, "gg-meta.json"), ggMeta);
+  }else if (isMac) {
+    await downloadAndExtract(
+      "https://filedn.com/lxM7sE9lDGdk3N87yTgsfWY/lendle/products/ggrun/mac/mise.zip",
+      cacheDir
+    );
+    ggMeta = `
+      {"version_req":"=2026.10.17","download":{"version":"2026.10.17","tags":[],"download_url":"https://github.com/jdx/mise/releases/download/v2026.10.23/mise-v2026.10.23-macos-x64","arch":"X86_64","os":"Macos","variant":"Any"},"cmd":{"cmd":"gh/jdx/mise","version":"=2026.10.17","distribution":null,"include_tags":[],"exclude_tags":[],"gems":null}}
+      `;
+  }else{
+    await downloadAndExtract(
+      "https://filedn.com/lxM7sE9lDGdk3N87yTgsfWY/lendle/products/ggrun/linux/mise.zip",
+      cacheDir
+    );
+    ggMeta = `
+      {"version_req":"=2026.10.17","download":{"version":"2026.10.17","tags":[],"download_url":"https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-linux-x64","arch":"X86_64","os":"Linux","variant":"Any"},"cmd":{"cmd":"gh/jdx/mise","version":"=2026.10.17","distribution":null,"include_tags":[],"exclude_tags":[],"gems":null}}
+      `;
+  }
+
+  //create config files
+  fs.writeFileSync(path.join(cacheDir, "gg-meta.json"), ggMeta);
 }
 
-module.exports={downloadAndInstallMise}
+module.exports = { downloadAndInstallMise }
