@@ -48,13 +48,18 @@ async function downloadAndExtract(url, dest) {
 async function downloadAndInstallMise(){
     const isWin = platform() === 'win32';
     const cacheDir = (!process.env.GG_CACHE_DIR) ?
-      path.join(homedir(), '.cache', 'gg', 'mise', 'mise_star_') :
-      path.join(process.env.GG_CACHE_DIR, 'mise', 'mise_star_');
+      path.join(homedir(), '.cache', 'gg', 'mise', 'mise_eq_2026.10.17') :
+      path.join(process.env.GG_CACHE_DIR, 'mise', 'mise_eq_2026.10.17');
     fs.mkdirSync(cacheDir, { recursive: true });
     await downloadAndExtract(
         "https://imsofa.rocks/projects/ggrun/mise/win/mise.zip",
         cacheDir
     );
+    //create config files
+    const ggMeta = `
+      {"version_req":"=2026.10.17","download":{"version":"2026.10.17","tags":[],"download_url":"https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-windows-x64.exe","arch":"X86_64","os":"Windows","variant":"Any"},"cmd":{"cmd":"gh/jdx/mise","version":"=2026.10.17","distribution":null,"include_tags":[],"exclude_tags":[],"gems":null}}
+      `;
+    fs.writeFileSync(path.join(cacheDir, "gg-meta.json"), ggMeta);
 }
 
 module.exports={downloadAndInstallMise}
