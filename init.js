@@ -70,7 +70,6 @@ async function main() {
 
   const ggToml = `[aliases]
 mise = "gh/jdx/mise@2026.10.17"
-node = "gh/jdx/mise@2026.10.17 exec node@latest -- node"
 uv   = "gh/jdx/mise@2026.10.17 exec uv@latest -- uv"
 `;
 
