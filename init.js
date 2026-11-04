@@ -23,6 +23,7 @@ async function main() {
 
   const isWin = platform() === 'win32';
   const isMac=platform()==="darwin";
+  let localMise=false;
   
   const cacheDir = (!process.env.GG_CACHE_DIR) ?
     path.join(homedir(), '.cache', 'gg', 'mise', 'mise_eq_2026.10.17') :
@@ -32,6 +33,13 @@ async function main() {
 
 
   function findMiseBinary() {
+    if(isWin && existsSync("mise.exe")){
+      localMise=true;
+      return "mise.exe";
+    }else if(existsSync("mise")){
+      localMise=true;
+      return "mise";
+    }
     if (!existsSync(cacheDir)) return null;
     return readdirSync(cacheDir).find(f => f.startsWith('mise'));
   }
@@ -78,13 +86,33 @@ uv   = "gh/jdx/mise@2026.10.17 exec uv@latest -- uv"
     console.log('gg.toml created');
   }
 
-  execSync(`"${ggCmd}" mise trust`, {
-    stdio: 'inherit'
-  });
-
-  execSync(`"${ggCmd}" mise run `, ...args, {
-    stdio: 'inherit'
-  });
+  if(!localMise){
+    execSync(`"${ggCmd}" mise trust`, {
+      stdio: 'inherit'
+    });
+  
+    execSync(`"${ggCmd}" mise run `, ...args, {
+      stdio: 'inherit'
+    });
+  }else{
+    if(isWin){
+      execSync(`mise.exe trust`, {
+        stdio: 'inherit'
+      });
+    
+      execSync(`mise.exe run `, ...args, {
+        stdio: 'inherit'
+      });
+    }else{
+      execSync(`./mise trust`, {
+        stdio: 'inherit'
+      });
+    
+      execSync(`./mise run `, ...args, {
+        stdio: 'inherit'
+      });
+    }
+  }
 }
 
 main();
